@@ -4,6 +4,12 @@ import publicConfig from '../config/supabase.public.json';
 export let supabase = null;
 export let authSetupError = '';
 
+function authOrigin() {
+  const host = location.hostname;
+  if (host === '40a.org' || host === 'www.40a.org' || host.endsWith('.github.io')) return 'https://40a.org';
+  return location.origin;
+}
+
 export async function initializeAuth() {
   try {
     let url = import.meta.env.VITE_SUPABASE_URL || '';
@@ -39,16 +45,16 @@ export async function authAction(action, values = {}) {
   if (action === 'signup') {
     result = await supabase.auth.signUp({
       email: values.email, password: values.password,
-      options: { data: { name: values.name, city: values.city }, emailRedirectTo: `${location.origin}/auth/callback` },
+      options: { data: { name: values.name, city: values.city }, emailRedirectTo: `${authOrigin()}/auth/callback` },
     });
   } else if (action === 'login') {
     result = await supabase.auth.signInWithPassword({ email: values.email, password: values.password });
   } else if (action === 'logout') {
     result = await supabase.auth.signOut({ scope: 'local' });
   } else if (action === 'reset-request') {
-    result = await supabase.auth.resetPasswordForEmail(values.email, { redirectTo: `${location.origin}/auth/reset` });
+    result = await supabase.auth.resetPasswordForEmail(values.email, { redirectTo: `${authOrigin()}/auth/reset` });
   } else if (action === 'resend') {
-    result = await supabase.auth.resend({ type: 'signup', email: values.email, options: { emailRedirectTo: `${location.origin}/auth/callback` } });
+    result = await supabase.auth.resend({ type: 'signup', email: values.email, options: { emailRedirectTo: `${authOrigin()}/auth/callback` } });
   } else if (action === 'password') {
     result = await supabase.auth.updateUser({ password: values.password, current_password: values.current });
   } else if (action === 'recovery') {

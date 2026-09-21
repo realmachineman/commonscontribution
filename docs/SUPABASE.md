@@ -8,31 +8,33 @@ The package is connected to the existing Commons Contribution project `jfararctq
 
 Live read-only checks on September 21, 2026 confirmed: project healthy, email provider enabled, signup enabled, and email confirmation required. No real users were created or confirmation emails sent during testing. Full signup/login/email-delivery testing remains to be performed with an email you control.
 
-On September 21, 2026, the dashboard Site URL was set to `http://localhost:8000`, and the exact `/auth/callback` and `/auth/reset` localhost:8000 redirect URLs were saved and visually verified. Optional Vite development redirects below have not been added. Custom SMTP was inspected and is disabled; configure an email provider before inviting community members.
+Production Site URL must be `https://40a.org`. Confirmation and password-reset emails use this value. If it stays on `http://localhost:8000`, signup links fail in the browser.
 
-Production domain `https://www.40a.org` is now live. Add these Redirect URLs in Supabase Authentication → URL Configuration, and set the Site URL to `https://www.40a.org`:
+Allow these Redirect URLs in Authentication → URL Configuration:
 
-- `https://www.40a.org/auth/callback`
-- `https://www.40a.org/auth/reset`
 - `https://40a.org/auth/callback`
 - `https://40a.org/auth/reset`
+- `https://www.40a.org/auth/callback`
+- `https://www.40a.org/auth/reset`
 - `http://localhost:8000/auth/callback`
 - `http://localhost:8000/auth/reset`
 
 ## Project configuration
 
 1. In your Supabase project, enable Email under Authentication → Sign In / Providers. Keep **Confirm email** enabled.
-2. Set the Site URL to `http://localhost:8000` for the packaged app.
+2. Set the Site URL to `https://40a.org`.
 3. Allow these Redirect URLs:
+   - `https://40a.org/auth/callback`
+   - `https://40a.org/auth/reset`
+   - `https://www.40a.org/auth/callback`
+   - `https://www.40a.org/auth/reset`
    - `http://localhost:8000/auth/callback`
    - `http://localhost:8000/auth/reset`
-   - `http://localhost:5173/auth/callback` (optional Vite development)
-   - `http://localhost:5173/auth/reset` (optional Vite development)
 4. The supplied package already includes the public project settings. To use a different project, copy `.env.example` to `.env.local` and set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`. No service-role or secret key is needed or accepted.
 5. Restart `python3 server.py`. Public project settings are served through `/api/config`, so the bundled frontend does not need rebuilding.
 6. Configure custom SMTP before inviting real users. Supabase's default mail service has restrictions and is intended for initial testing. Email confirmations/resets are subject to provider settings and rate limits.
 
-Production redirect URLs must be added when an actual HTTPS domain is deployed. Continue using localhost for now, as requested.
+Use `https://40a.org` as the Site URL in production. Localhost redirects can remain on the allow-list for local testing.
 
 ## Verify real accounts
 

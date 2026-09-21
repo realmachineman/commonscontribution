@@ -1,1 +1,10 @@
-const CACHE='commons-glass-v3';self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['/','/logo.png'])));self.skipWaiting()});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',event=>{const url=new URL(event.request.url);if(event.request.method!=='GET'||url.origin!==location.origin||url.pathname.startsWith('/api/'))return;event.respondWith(fetch(event.request).then(response=>{if(response.ok){const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy))}return response}).catch(async()=>await caches.match(event.request)||(event.request.mode==='navigate'?await caches.match('/'):Response.error())))});
+self.addEventListener('install',event=>{self.skipWaiting()});
+self.addEventListener('activate',event=>{
+ event.waitUntil((async()=>{
+  const keys=await caches.keys();
+  await Promise.all(keys.map(key=>caches.delete(key)));
+  await self.registration.unregister();
+  const windows=await self.clients.matchAll({type:'window'});
+  windows.forEach(client=>client.navigate(client.url));
+ })());
+});

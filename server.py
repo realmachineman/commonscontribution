@@ -127,7 +127,9 @@ class API(BaseHTTPRequestHandler):
     raw=asset.read_bytes();self.send_response(200);self.send_header('Content-Type',mimetypes.guess_type(str(asset))[0] or 'application/octet-stream');self.send_header('Content-Length',str(len(raw)));self.end_headers();self.wfile.write(raw);return
    if method=='POST':
     origin=self.headers.get('Origin');host=self.headers.get('Host')
-    if origin and urlparse(origin).netloc!=host:raise ValueError('Invalid request origin')
+    if origin:
+     allowed={host,'www.40a.org','40a.org'}
+     if urlparse(origin).netloc not in allowed:raise ValueError('Invalid request origin')
    size=int(self.headers.get('Content-Length',0))
    if size>100000:raise ValueError('Request too large')
    data=json.loads(self.rfile.read(size) or '{}') if method=='POST' else {}

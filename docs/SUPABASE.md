@@ -10,6 +10,15 @@ Live read-only checks on September 21, 2026 confirmed: project healthy, email pr
 
 On September 21, 2026, the dashboard Site URL was set to `http://localhost:8000`, and the exact `/auth/callback` and `/auth/reset` localhost:8000 redirect URLs were saved and visually verified. Optional Vite development redirects below have not been added. Custom SMTP was inspected and is disabled; configure an email provider before inviting community members.
 
+Production domain `https://www.40a.org` is now live. Add these Redirect URLs in Supabase Authentication → URL Configuration, and set the Site URL to `https://www.40a.org`:
+
+- `https://www.40a.org/auth/callback`
+- `https://www.40a.org/auth/reset`
+- `https://40a.org/auth/callback`
+- `https://40a.org/auth/reset`
+- `http://localhost:8000/auth/callback`
+- `http://localhost:8000/auth/reset`
+
 ## Project configuration
 
 1. In your Supabase project, enable Email under Authentication → Sign In / Providers. Keep **Confirm email** enabled.

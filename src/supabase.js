@@ -1,14 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
+import publicConfig from '../config/supabase.public.json';
 
 export let supabase = null;
 export let authSetupError = '';
+
 export async function initializeAuth() {
   try {
-    const response = await fetch('/api/config');
-    if (!response.ok) throw new Error('Could not load account configuration.');
-    const config = await response.json();
-    const url = config.supabaseUrl || import.meta.env.VITE_SUPABASE_URL;
-    const key = config.supabasePublishableKey || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    let url = import.meta.env.VITE_SUPABASE_URL || '';
+    let key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+    try {
+      const response = await fetch('/api/config');
+      if (response.ok && (response.headers.get('content-type') || '').includes('application/json')) {
+        const config = await response.json();
+        url = config.supabaseUrl || url;
+        key = config.supabasePublishableKey || key;
+      }
+    } catch {}
+    url = url || publicConfig.url;
+    key = key || publicConfig.publishableKey;
     if (!url || !key) {
       authSetupError = 'Account registration will open once the community’s Supabase project is connected.';
       return;
@@ -16,12 +25,14 @@ export async function initializeAuth() {
     supabase = createClient(url, key, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' },
     });
-    // Capture recovery before the initial session is consumed, including provider fallback redirects.
-    const recovery=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
+    const recovery = new URLSearchParams(location.hash.slice(1)).get('type') === 'recovery';
     await supabase.auth.getSession();
-    if(recovery)history.replaceState(null,'','/auth/reset');
-  } catch (error) { authSetupError = error.message; }
+    if (recovery) history.replaceState(null, '', '/auth/reset');
+  } catch (error) {
+    authSetupError = error.message;
+  }
 }
+
 export async function authAction(action, values = {}) {
   if (!supabase) throw new Error(authSetupError || 'Supabase is not configured.');
   let result;
@@ -45,4 +56,22 @@ export async function authAction(action, values = {}) {
   } else throw new Error('Unknown account action.');
   if (result.error) throw result.error;
   return result.data || {};
+}
+
+export async function sessionProfile() {
+  if (!supabase) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const meta = user.user_metadata || {};
+  return {
+    id: user.id,
+    name: String(meta.name || (user.email || 'Neighbor').split('@')[0]),
+    email: user.email,
+    city: String(meta.city || 'Not specified'),
+    categories: [],
+    bio: '',
+    avatar: '',
+    credits: 0,
+    score: 0,
+  };
 }

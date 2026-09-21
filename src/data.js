@@ -11,10 +11,25 @@ export const groups={
 'Professional Services & Trade Labor':['General Contracting & Construction','Roofing & Exterior Repair','Landscaping & Land Clearing','Tailoring & Clothing Alteration','Barbering & Hair Styling','Childcare & Babysitting','Accounting, Tax & Bookkeeping','Legal Services & Mediation','Graphic Design & Digital Services','IT, Computer & Appliance Repair','Photography & Media Production'],
 'Education, Knowledge & Entertainment':['Academic Tutoring & Test Prep','Music Lessons & Instrument Care','Survival & Bushcraft Instruction','Fitness & Personal Training','Language Learning & Translation','Physical Books & Manuals','Board Games, Cards & Puzzles','Crafting & Hobby Supplies','Dog & Animal Training']};
 export const resources=[['gardens','Gardens & food','Sprout','Grow together. Share the harvest.','Track harvests, exchange fresh produce, and give every crop a traceable origin.'],['kinetic','Kinetic power','Zap','Your energy goes further.','Pedal and row to help power the neighborhood. Verified generation earns one credit per kWh.'],['carpentry','Carpentry & tools','Hammer','Build something that lasts.','Share tools, exchange woodworking skills, and build raised beds or repair community infrastructure.'],['water-supply','Water supply','Droplets','Fresh water. From thin air.','Community energy powers atmospheric water generation and shared drinking water infrastructure.'],['greenhouse','Greenhouse','Leaf','A little room for growth.','Share seedlings and steward a climate-controlled nursery for year-round food production.'],['solar','Solar micro-grid','Sun','A shared place in the sun.','Contribute surplus solar energy to the water station, workshop, and community battery.'],['bitchat','Emergency mesh','Radio','Stay connected. Even offline.','Keep resource requests queued during outages and use native Bitchat for nearby Bluetooth messaging.']];
+export const seedListings=[
+ {id:'l1',user:'seed1',name:'Maya Chen',title:'A little extra from the garden',description:'Fresh heirloom tomatoes, picked this morning. A 5 lb basket to share.',category:'Fresh Produce & Orchard Crop',city:'Detroit',mode:'swap',price:0,status:'available',image:'garden',contact_email:'',contact_phone:''},
+ {id:'l2',user:'seed2',name:'Marcus Williams',title:'Good wood. Better neighbors.',description:'Two hours of carpentry: raised beds, shelves, or a repair you have been putting off.',category:'Carpentry & Woodworking',city:'Detroit',mode:'credits',price:30,status:'available',image:'workshop',contact_email:'',contact_phone:''},
+ {id:'l3',user:'seed3',name:'Priya Patel',title:'A brighter kind of energy',description:'One kWh of contributed solar generation. Demonstration listing; no live meter connected.',category:'Solar Power Systems & Panels',city:'Detroit',mode:'credits',price:1,status:'available',image:'solar',contact_email:'',contact_phone:''},
+ {id:'l4',user:'seed1',name:'Maya Chen',title:'Start something green',description:'Six basil and kale seedlings, ready for your windowsill or community plot.',category:'Gardening Supplies & Seeds',city:'Detroit',mode:'fiat',price:8,status:'available',image:'greenhouse',contact_email:'',contact_phone:''},
+ {id:'l5',user:'seed2',name:'Marcus Williams',title:'A helping hand with plumbing',description:'Fix a dripping tap or install a garden hose connection. Materials by agreement.',category:'Plumbing Materials & Fixtures',city:'Detroit',mode:'swap',price:0,status:'available',image:'water',contact_email:'',contact_phone:''}
+];
+export const seedMembers=[
+ {id:'seed1',name:'Maya Chen',city:'Detroit',categories:['Fresh Produce & Orchard Crop','Gardening Supplies & Seeds'],bio:'Growing food and sharing what the garden gives.',avatar:'',score:0},
+ {id:'seed2',name:'Marcus Williams',city:'Detroit',categories:['Carpentry & Woodworking','Plumbing Materials & Fixtures'],bio:'Carpenter, repairer, neighbor. Happy to trade skills.',avatar:'',score:0},
+ {id:'seed3',name:'Priya Patel',city:'Detroit',categories:['Solar Power Systems & Panels','Bicycles & Human-Powered Transport'],bio:'Solar steward and weekend bicycle mechanic.',avatar:'',score:0}
+];
 export const api=async(path,body)=>{
  if(['signup','login','logout','password','reset-request','resend','recovery'].includes(path))return authAction(path,body);
  const session=supabase?(await supabase.auth.getSession()).data.session:null;
  const headers={...(session?{Authorization:'Bearer '+session.access_token}:{}),...(body!==undefined?{'Content-Type':'application/json'}:{})};
  const r=await fetch('/api/'+path,{headers,...(body!==undefined?{method:'POST',body:JSON.stringify(body)}:{})});
- const d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d;
+ const text=await r.text();
+ let d={};
+ try{d=JSON.parse(text)}catch{throw Error('The community server is unavailable. Please try again.')}
+ if(!r.ok)throw Error(d.error||'Request failed');return d;
 };

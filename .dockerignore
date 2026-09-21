@@ -1,0 +1,7 @@
+node_modules
+.git
+*.sqlite3
+.env
+.env.local
+__pycache__
+.sites-runtime
